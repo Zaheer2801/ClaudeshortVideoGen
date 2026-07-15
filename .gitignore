@@ -1,0 +1,15 @@
+# secrets
+.env
+
+# dependencies / build output
+node_modules/
+remotion/out/
+__pycache__/
+*.pyc
+venv/
+
+# heavy regenerable per-short artifacts:
+# voice/ = cached ElevenLabs TTS lines, output/ = rendered videos.
+# Both are rebuilt by the pipeline; finals are linked from the README instead.
+shorts/*/voice/
+shorts/*/output/
