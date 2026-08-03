@@ -1,0 +1,8 @@
+This repository contains two projects under different licenses. See each
+subdirectory for its own LICENSE file:
+
+- claudeshortvideos/LICENSE — MIT, Copyright (c) 2026 Hasan Aboul Hasan,
+  Modifications Copyright (c) 2026 Zaheer. Originally forked from
+  https://github.com/hassancs91/claude-faceless-shorts-creator.
+- ai-shorts-web/ — Copyright (c) 2026 Zaheer, written from scratch (no prior
+  license applies).
