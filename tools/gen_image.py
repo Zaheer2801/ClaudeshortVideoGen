@@ -108,9 +108,14 @@ def main():
         with open(r, "rb") as f:
             contents.append(types.Part.from_bytes(data=f.read(), mime_type=mime_for(r)))
 
+    img_cfg_kwargs = dict(aspect_ratio=aspect)
+    if "image_size" in types.ImageConfig.model_fields:
+        img_cfg_kwargs["image_size"] = size
+    else:
+        print(f"    (installed google-genai SDK has no ImageConfig.image_size; ignoring --size={size})")
     cfg_kwargs = dict(
         response_modalities=RESPONSE_MODALITIES,
-        image_config=types.ImageConfig(aspect_ratio=aspect, image_size=size),
+        image_config=types.ImageConfig(**img_cfg_kwargs),
     )
     if seed is not None and "seed" in types.GenerateContentConfig.model_fields:
         cfg_kwargs["seed"] = seed

@@ -1,0 +1,107 @@
+{
+  "master": "remotion/out/Short13Pipeline-voiced.mp4",
+  "master_fps": 30,
+  "catalog": "media/library/sfx/catalog.json",
+  "render": {
+    "preview": "remotion/out/Short13Pipeline-voiced.mp4",
+    "out": "shorts/short-13-pipeline/output/short-13-sfx.mp4",
+    "end_s": 38,
+    "duck": true
+  },
+  "events": [
+    {
+      "at_s": 7.13,
+      "sfx_id": "ui-click-soft",
+      "gain_db": -3,
+      "optional": true,
+      "shot": "session",
+      "cue": "kicker THE QUESTION appears"
+    },
+    {
+      "at_s": 10.2,
+      "sfx_id": "ui-toggle-on",
+      "gain_db": -3,
+      "optional": true,
+      "shot": "session",
+      "cue": "kicker flips THE QUESTION -> THE PIPELINE"
+    },
+    {
+      "at_s": 16.2,
+      "sfx_id": "keys-typing-soft",
+      "gain_db": -3,
+      "shot": "session",
+      "cue": "typing 'node scripts/render-all.mjs Short13Pipeline'"
+    },
+    {
+      "at_s": 18.67,
+      "sfx_id": "pop-reveal",
+      "gain_db": 1,
+      "optional": true,
+      "shot": "session",
+      "cue": "'Short13Pipeline.mp4 rendered' prints"
+    },
+    {
+      "at_s": 19.4,
+      "sfx_id": "keys-typing-soft",
+      "gain_db": -3,
+      "shot": "session",
+      "cue": "typing 'python tools/gen_voice.py --emit-ts vo.gen.ts'"
+    },
+    {
+      "at_s": 23.0,
+      "sfx_id": "pop-reveal",
+      "gain_db": 3,
+      "shot": "session",
+      "cue": "gold highlight lands on 'voice.wav — word-timed' — the caption mechanism revealed",
+      "note": "HERO — the discovery"
+    },
+    {
+      "at_s": 25.4,
+      "sfx_id": "keys-typing-soft",
+      "gain_db": -4,
+      "optional": true,
+      "shot": "session",
+      "cue": "typing 'python tools/mix_sfx.py sfx-plan.json'"
+    },
+    {
+      "at_s": 27.67,
+      "sfx_id": "ui-click-soft",
+      "gain_db": 0,
+      "optional": true,
+      "shot": "session",
+      "cue": "'sfx mixed -15.5 LUFS' prints"
+    },
+    {
+      "at_s": 28.2,
+      "sfx_id": "keys-typing-soft",
+      "gain_db": -4,
+      "optional": true,
+      "shot": "session",
+      "cue": "typing 'ls output/'"
+    },
+    {
+      "at_s": 29.33,
+      "sfx_id": "stamp-hit",
+      "gain_db": 5,
+      "shot": "session",
+      "cue": "DONE stamp lands next to 'short-13-sfx.mp4'",
+      "note": "HERO payoff layer 1 — the stamp impact"
+    },
+    {
+      "at_s": 29.33,
+      "sfx_id": "chime-reward",
+      "gain_db": 1,
+      "shot": "session",
+      "cue": "the whole pipeline resolves — output file exists",
+      "note": "HERO payoff layer 2 — build-and-drop with stamp-hit"
+    },
+    {
+      "at_s": 34.5,
+      "sfx_id": "whoosh-soft",
+      "gain_db": -3,
+      "optional": true,
+      "shot": "loop",
+      "cue": "terminal dissolves back to the frozen ready-state — loop into the intro"
+    }
+  ]
+}

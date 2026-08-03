@@ -8,6 +8,14 @@
   "transparent": false
  },
  {
+  "id": "Short1Chess",
+  "durationInSeconds": 42,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "transparent": false
+ },
+ {
   "id": "Short10Fees",
   "durationInSeconds": 42,
   "fps": 30,
@@ -32,8 +40,16 @@
   "transparent": false
  },
  {
-  "id": "Short1Chess",
-  "durationInSeconds": 42,
+  "id": "Short13Pipeline",
+  "durationInSeconds": 38,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "transparent": false
+ },
+ {
+  "id": "Short14Mahesh",
+  "durationInSeconds": 36,
   "fps": 30,
   "width": 1080,
   "height": 1920,
@@ -106,6 +122,14 @@
  {
   "id": "Vox1Coffee",
   "durationInSeconds": 40.5,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "transparent": false
+ },
+ {
+  "id": "Vox2India",
+  "durationInSeconds": 120,
   "fps": 30,
   "width": 1080,
   "height": 1920,

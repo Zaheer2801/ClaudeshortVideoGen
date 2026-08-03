@@ -1,0 +1,9 @@
+{
+  "prompt": "Space rocket lander touching down near the Moon's cratered south pole surface, stars and Earth visible in the background, detailed engraving illustration style, sepia and ink linework, NO text, no labels, no words, isolated on a plain pure white background",
+  "model": "gemini-3.1-flash-lite-image",
+  "aspect_ratio": "1:1",
+  "image_size": "1K",
+  "seed": null,
+  "refs": [],
+  "created": "2026-08-02T17:37:03"
+}

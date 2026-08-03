@@ -18,6 +18,14 @@ Usage:
 
 Needs ELEVENLABS_API_KEY in .env. ffmpeg/ffprobe on PATH.
 Default voice: ElevenLabs premade "Liam".
+
+FALLBACK: if ElevenLabs fails (billing, outage, etc.) and FISHAUDIO_API_KEY is set in
+.env, each failing line automatically retries on Fish Audio instead — same output
+contract (raw mp3 + <path>.words.json word timestamps), so the rest of the pipeline
+(atempo-fit, captions) doesn't know or care which provider spoke a given line. Fish Audio
+voice defaults to "Adrian" (a steady narrator) via --fish-voice <reference_id> — always
+pin a reference_id: leaving it unset lets Fish Audio pick inconsistently per line, so a
+short's lines can end up spoken by different-sounding voices.
 """
 import argparse
 import hashlib
@@ -31,7 +39,14 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_VOICE = "TX3LPaxmHKxFdv7VOQHJ"  # ElevenLabs premade "Liam"
 DEFAULT_MODEL = "eleven_multilingual_v2"
+FISH_TTS_URL = "https://api.fish.audio/v1/tts/stream/with-timestamp"
+DEFAULT_FISH_MODEL = "s1"
+DEFAULT_FISH_VOICE = "bf322df2096a46f18c579d0baa36f41d"  # "Adrian" — steady narrator, closest match to Liam
 MAX_ATEMPO = 1.3  # never speed a line up more than 30%
+
+
+class TTSError(Exception):
+    """A provider failed to synthesize a line — caller may fall back to another provider."""
 
 
 def load_env():
@@ -104,14 +119,83 @@ def tts_line(key, voice, model, text, prev_text, next_text, out_path):
                 audio = call(f"{base}?output_format=mp3_44100_128")
                 words = []
             except urllib.error.HTTPError as e2:
-                sys.exit(f"ElevenLabs TTS failed ({e2.code}) for: {text!r}\n{e2.read().decode()[:500]}")
+                raise TTSError(f"ElevenLabs TTS failed ({e2.code}) for: {text!r}\n{e2.read().decode()[:500]}")
         else:
-            sys.exit(f"ElevenLabs TTS failed ({e.code}) for: {text!r}\n{detail}")
+            raise TTSError(f"ElevenLabs TTS failed ({e.code}) for: {text!r}\n{detail}")
 
     # audio tags ([excited], [pause]…) are delivery directions, not spoken words
     words = [w for w in words if not (w["w"].startswith("[") or w["w"].endswith("]"))]
     with open(out_path, "wb") as f:
         f.write(audio)
+    with open(out_path + ".words.json", "w", encoding="utf-8") as f:
+        json.dump(words, f, ensure_ascii=False)
+
+
+def tts_line_fishaudio(key, voice, text, out_path, speed=None, volume=None):
+    """Fish Audio streaming TTS w/ timestamps -> same raw-mp3 + <path>.words.json contract
+    as tts_line(), so callers can't tell which provider spoke a given line.
+
+    speed/volume tune delivery (prosody) — set these per-video based on who's actually
+    watching, not left at a single blanket default: a punchy social-feed short reads
+    better a touch brisker (~1.05-1.1x) than a measured explainer or a kids' story."""
+    import base64
+
+    body = {"text": text, "format": "mp3", "mp3_bitrate": 128, "latency": "normal"}
+    if voice:
+        body["reference_id"] = voice
+    if speed is not None or volume is not None:
+        prosody = {}
+        if speed is not None:
+            prosody["speed"] = speed
+        if volume is not None:
+            prosody["volume"] = volume
+        body["prosody"] = prosody
+    req = urllib.request.Request(
+        FISH_TTS_URL,
+        data=json.dumps(body).encode(),
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "model": DEFAULT_FISH_MODEL,
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=180) as r:
+            stream = r.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as e:
+        raise TTSError(f"Fish Audio TTS failed ({e.code}) for: {text!r}\n{e.read().decode()[:500]}")
+
+    # text/event-stream: blocks separated by a blank line, each with a "data: {json}" line
+    audio_chunks = []
+    chunk_align = {}  # chunk_seq -> (chunk_audio_offset_sec, segments); newer replaces older
+    for block in stream.split("\n\n"):
+        data_line = next((ln[len("data:"):].strip() for ln in block.splitlines()
+                          if ln.startswith("data:")), None)
+        if not data_line or data_line == "[DONE]":
+            continue
+        try:
+            evt = json.loads(data_line)
+        except json.JSONDecodeError:
+            continue
+        if evt.get("audio_base64"):
+            audio_chunks.append(base64.b64decode(evt["audio_base64"]))
+        align = evt.get("alignment")
+        if align:
+            chunk_align[evt.get("chunk_seq", 0)] = (evt.get("chunk_audio_offset_sec", 0.0),
+                                                     align.get("segments", []))
+
+    if not audio_chunks:
+        raise TTSError(f"Fish Audio TTS returned no audio for: {text!r}")
+
+    words = []
+    for seq in sorted(chunk_align):
+        offset, segments = chunk_align[seq]
+        for seg in segments:
+            words.append({"w": seg["text"], "start": round(offset + seg["start"], 3),
+                          "end": round(offset + seg["end"], 3)})
+
+    with open(out_path, "wb") as f:
+        f.write(b"".join(audio_chunks))
     with open(out_path + ".words.json", "w", encoding="utf-8") as f:
         json.dump(words, f, ensure_ascii=False)
 
@@ -156,6 +240,11 @@ def main():
     ap.add_argument("--beats", required=True, help="path to the short's beats.json")
     ap.add_argument("--voice", default=DEFAULT_VOICE)
     ap.add_argument("--model", default=DEFAULT_MODEL)
+    ap.add_argument("--fish-voice", default=DEFAULT_FISH_VOICE,
+                    help="Fish Audio reference_id to use if it kicks in as fallback (default: \"Adrian\", a steady narrator voice — pinning this matters, omitting reference_id lets Fish Audio pick inconsistently per line)")
+    ap.add_argument("--fish-speed", type=float, default=None,
+                    help="Fish Audio prosody speed (0.5-2.0, default 1.0) — set per-video for the target audience, e.g. ~1.05-1.1 for a punchy social short")
+    ap.add_argument("--fish-volume", type=float, default=None, help="Fish Audio prosody volume in dB (default 0)")
     ap.add_argument("--mux", help="optional rendered mp4 to mux the voice onto (-voiced.mp4)")
     ap.add_argument("--emit-ts", help="write the VO (with exact word times) as a TS module, e.g. remotion/src/shots/short-2/vo.gen.ts")
     ap.add_argument("--force", action="store_true")
@@ -169,9 +258,12 @@ def main():
     vdir = os.path.join(os.path.dirname(beats_path), "voice")
     os.makedirs(vdir, exist_ok=True)
 
-    key = load_env().get("ELEVENLABS_API_KEY")
-    if not key and not args.dry_run:
-        sys.exit("ELEVENLABS_API_KEY not found in .env")
+    env = load_env()
+    key = env.get("ELEVENLABS_API_KEY")
+    fish_key = env.get("FISHAUDIO_API_KEY")
+    if not key and not fish_key and not args.dry_run:
+        sys.exit("neither ELEVENLABS_API_KEY nor FISHAUDIO_API_KEY found in .env")
+    used_fallback = False
 
     fitted = []  # (path, start_sec, fitted_dur)
     print(f"{'line':4s} {'start':>6s} {'window':>6s} {'clip':>6s} {'tempo':>5s}  text")
@@ -191,7 +283,18 @@ def main():
         if args.force or not os.path.exists(raw) or not os.path.exists(raw + ".words.json"):
             prev_text = vo[i - 1].get("tts", vo[i - 1]["text"]) if i > 0 else None
             next_text = vo[i + 1].get("tts", vo[i + 1]["text"]) if i + 1 < len(vo) else None
-            tts_line(key, args.voice, args.model, tts_text, prev_text, next_text, raw)
+            if key:
+                try:
+                    tts_line(key, args.voice, args.model, tts_text, prev_text, next_text, raw)
+                except TTSError as e:
+                    if not fish_key:
+                        sys.exit(f"{e}\n(no FISHAUDIO_API_KEY configured for fallback)")
+                    print(f"    (ElevenLabs failed: {e}; falling back to Fish Audio)")
+                    tts_line_fishaudio(fish_key, args.fish_voice, tts_text, raw, args.fish_speed, args.fish_volume)
+                    used_fallback = True
+            else:
+                tts_line_fishaudio(fish_key, args.fish_voice, tts_text, raw, args.fish_speed, args.fish_volume)
+                used_fallback = True
 
         dur = probe_duration(raw)
         tempo = 1.0
@@ -228,7 +331,10 @@ def main():
          "-map", "[out]", "-ar", "44100", "-ac", "2", voice_wav])
     print(f"voice track -> {os.path.relpath(voice_wav, ROOT)}")
 
-    beats["voiceStatus"] = f"elevenlabs:{args.voice}"
+    if used_fallback:
+        beats["voiceStatus"] = f"fishaudio:{args.fish_voice or 'default'} (elevenlabs:{args.voice} fallback)"
+    else:
+        beats["voiceStatus"] = f"elevenlabs:{args.voice}"
     json.dump(beats, open(beats_path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     print(f"actual line timings + word maps written back -> {os.path.relpath(beats_path, ROOT)}")
 
@@ -245,4 +351,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except TTSError as e:
+        sys.exit(f"error: {e}")

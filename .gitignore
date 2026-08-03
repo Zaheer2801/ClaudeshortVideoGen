@@ -25,3 +25,7 @@ ai-shorts/*/bakeoff/*.mp4
 
 # local editor config
 .vscode/
+.claude/settings.local.json
+
+# OS junk
+.DS_Store

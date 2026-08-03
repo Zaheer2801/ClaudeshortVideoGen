@@ -1,0 +1,49 @@
+{
+  "master": "remotion/out/Vox2India-voiced.mp4",
+  "master_fps": 30,
+  "catalog": "media/library/sfx/catalog.json",
+  "render": {
+    "preview": "remotion/out/Vox2India-voiced.mp4",
+    "out": "vox-shorts/vox-2-india/output/vox-2-sfx.mp4",
+    "end_s": 120,
+    "duck": true
+  },
+  "note": "Collage taste (vox engine, 2-min expanded cut): paper foley IS the diegesis — thuds on 'place' landings, pop-reveal on chip pins, whoosh on the big camera pushes. Three hero build-and-drops spaced across the runtime so a 3x-longer video doesn't feel 3x busier: ZERO (the math breakthrough), INDEPENDENCE (charkha + peaceful transfer of power), MOON LANDING (2023). Everything else sparse, optional, under the voice. Cue times derive from Vox2India.tsx CUE frames.",
+  "events": [
+    { "at_s": 2.5, "sfx_id": "whoosh-wind", "gain_db": -13, "optional": true, "shot": "indus", "cue": "camera starts the push toward the Indus region (f150-280)" },
+    { "at_s": 6.5, "sfx_id": "impact-soft", "gain_db": -11, "shot": "indus", "cue": "Indus seal 'place' lands (f195)" },
+    { "at_s": 8.0, "sfx_id": "pop-reveal", "gain_db": -13, "optional": true, "shot": "indus", "cue": "Indus Valley chip pins (f240)" },
+
+    { "at_s": 17.0, "sfx_id": "whoosh-soft", "gain_db": -12, "optional": true, "shot": "bridge", "cue": "'Empires rose. Empires fell.' statement lands (f510)" },
+
+    { "at_s": 22.5, "sfx_id": "impact-soft", "gain_db": -10, "shot": "golden", "cue": "manuscript/scholar 'place' lands (f675)" },
+    { "at_s": 24.3, "sfx_id": "riser-soft", "gain_db": -10, "shot": "golden", "cue": "tension before the zero reveal", "note": "HERO 1a — build" },
+    { "at_s": 25.33, "sfx_id": "chime-reward", "gain_db": -4, "shot": "golden", "cue": "'Zero. Still running the world.' lands + sweep (f760)", "note": "HERO 1b — drop" },
+    { "at_s": 26.67, "sfx_id": "pop-reveal", "gain_db": -13, "optional": true, "shot": "golden", "cue": "Gupta era / zero chip pins (f800)" },
+
+    { "at_s": 33.0, "sfx_id": "pop-reveal", "gain_db": -12, "optional": true, "shot": "nalanda", "cue": "Nalanda chip pins (f990)" },
+    { "at_s": 34.67, "sfx_id": "ui-click-soft", "gain_db": -13, "optional": true, "shot": "nalanda", "cue": "10,000-students chip pins (f1040)" },
+
+    { "at_s": 43.0, "sfx_id": "pop-reveal", "gain_db": -12, "optional": true, "shot": "trade", "cue": "'Silk. Spices. Gems.' chip pins (f1290)" },
+    { "at_s": 53.0, "sfx_id": "impact-soft", "gain_db": -9, "shot": "peak", "cue": "1700 GDP-peak stat chip lands (f1590)" },
+
+    { "at_s": 59.0, "sfx_id": "ui-click-soft", "gain_db": -14, "optional": true, "shot": "decline", "cue": "'Under 4% by 1950' chip pins (f1770) — deliberately understated, not celebratory" },
+    { "at_s": 61.0, "sfx_id": "impact-soft", "gain_db": -11, "shot": "decline", "cue": "'Two centuries changed that.' statement lands (f1830)" },
+
+    { "at_s": 71.0, "sfx_id": "impact-soft", "gain_db": -10, "shot": "independence", "cue": "charkha 'place' lands (f2130)" },
+    { "at_s": 72.5, "sfx_id": "riser-soft", "gain_db": -9, "shot": "independence", "cue": "tension before the independence reveal", "note": "HERO 2a — build" },
+    { "at_s": 74.0, "sfx_id": "chime-reward", "gain_db": -3, "shot": "independence", "cue": "'A peaceful transfer of power' chip pins (f2220)", "note": "HERO 2b — drop" },
+
+    { "at_s": 83.0, "sfx_id": "whoosh-soft", "gain_db": -11, "optional": true, "shot": "economy", "cue": "skyline rises in (f2490)" },
+    { "at_s": 86.0, "sfx_id": "pop-reveal", "gain_db": -10, "shot": "economy", "cue": "'1.4 billion · fastest-growing' chip pins (f2580)" },
+
+    { "at_s": 93.0, "sfx_id": "impact-deep-soft", "gain_db": -9, "shot": "space", "cue": "rocket/Moon 'place' lands (f2790)" },
+    { "at_s": 95.5, "sfx_id": "riser-soft", "gain_db": -8, "shot": "space", "cue": "tension before the moon-landing reveal", "note": "HERO 3a — build" },
+    { "at_s": 96.67, "sfx_id": "chime-reward", "gain_db": -2, "shot": "space", "cue": "'Moon, south pole — first ever' chip pins (f2900)", "note": "HERO 3b — drop, the closing achievement" },
+    { "at_s": 96.9, "sfx_id": "impact-soft", "gain_db": -8, "shot": "space", "cue": "same instant — weight under the chime", "note": "HERO 3b layer 2" },
+
+    { "at_s": 105.0, "sfx_id": "whoosh-wind", "gain_db": -13, "optional": true, "shot": "loop", "cue": "camera starts the pull home to the hook framing (f3150)" },
+    { "at_s": 112.67, "sfx_id": "whoosh-soft", "gain_db": -13, "optional": true, "shot": "loop", "cue": "title re-forms, loop into the hook (f3380)" },
+    { "at_s": 114.0, "sfx_id": "pop-reveal", "gain_db": -12, "optional": true, "shot": "loop", "cue": "closing chip pins (f3420)" }
+  ]
+}
